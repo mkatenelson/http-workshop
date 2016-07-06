@@ -1,18 +1,37 @@
 angular.module('ThePresidentsApp', [])
   .controller('PresidentsController', PresidentsController);
 
-function PresidentsController(){
-  this.all = [
-    {name: 'George Washington', start: 1789, end: 1797 },
-    {name: 'John Adams', start: 1797, end: 1801 },
-    {name: 'Thomas Jefferson', start: 1801, end: 1809 },
-    {name: 'James Madison', start: 1809, end: 1817 }
-  ]
+PresidentsController.$inject = ['$http'];
+
+function PresidentsController($http) {
+  // stores Presidents
+  this.all = [];
+  // = function addPresident which is where we'll get data from the form
   this.addPresident = addPresident;
   this.newPresident = {};
-
+  this.getPresidents = getPresidents;
+  var self = this;
   function addPresident(){
     this.all.push(this.newPresident);
     this.newPresident = {};
   }
+
+  function getPresidents() {
+    $http
+      .get('http://localhost:3000/presidents')
+      .then(function(response) {
+        self.all = response.data.presidents;
+      });
+  };
+  getPresidents();
+
+  function addPresident() {
+    $http
+      .post('http://localhost:3000/presidents', self.newPresident)
+      .then(function(response) {
+        getPresidents();
+      });
+    self.newPresident = {};
+  }
+
 }
